@@ -16,7 +16,7 @@ class TLCache(cache.BaseCache):
                                                  default_timeout=_DEFAULT_FILE_TIMEOUT)
 
     def add(self, key, value, timeout=None):
-        self._file_cache.add(key, value)
+        self._file_cache.set(key, value)
         return self._simple_cache.add(key, value, timeout)
 
     def clearall(self):
