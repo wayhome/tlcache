@@ -2,6 +2,9 @@
 
 History
 -------
+0.1.2 (2015-11-13)
+__________________
+* Fix a bug that which causes when cache invalidate wil not cached again.
 
 0.1.1 (2015-11-10)
 --------------------

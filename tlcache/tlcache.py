@@ -15,9 +15,9 @@ class TLCache(cache.BaseCache):
         self._file_cache = cache.FileSystemCache(cache_dir, threshold=_DEFAULT_FILE_THRESHOLD,
                                                  default_timeout=_DEFAULT_FILE_TIMEOUT)
 
-    def add(self, key, value, timeout=None):
+    def set(self, key, value, timeout=None):
         self._file_cache.set(key, value)
-        return self._simple_cache.add(key, value, timeout)
+        return self._simple_cache.set(key, value, timeout)
 
     def clearall(self):
         self._simple_cache.clear()
@@ -32,7 +32,7 @@ class TLCache(cache.BaseCache):
                 if rv is None:
                     try:
                         rv = f(*args, **kwargs)
-                        self.add(cache_key, rv, timeout=timeout)
+                        self.set(cache_key, rv, timeout=timeout)
                     except Exception as e:
                         logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
                                      f, e, args, kwargs, exc_info=1)

@@ -28,13 +28,16 @@ class TestTlcache(unittest.TestCase):
         global i
         i = 1
 
-        @self.cache.cache()
+        @self.cache.cache(timeout=0.1)
         def incr():
             global i
             i += 1
             return i
         incr()
         self.assertEqual(incr(), 2)
+        time.sleep(0.1)
+        incr()
+        self.assertEqual(incr(), 3)
 
     def test_cache_when_raises(self):
 
@@ -57,7 +60,6 @@ class TestTlcache(unittest.TestCase):
         self.assertEqual(incr(0), 1)
         with self.assertRaises(ValueError):
             incr(1)
-
 
 
 if __name__ == '__main__':
