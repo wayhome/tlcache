@@ -2,6 +2,11 @@
 
 History
 -------
+
+0.1.3 (2015-11-24)
+------------------
+* Don't cache when results is empty
+
 0.1.2 (2015-11-13)
 __________________
 * Fix a bug that which causes when cache invalidate wil not cached again.
