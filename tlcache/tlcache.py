@@ -18,8 +18,8 @@ class TLCache(cache.BaseCache):
                                                  default_timeout=_DEFAULT_FILE_TIMEOUT)
 
     def set(self, key, value, timeout=None):
-        self._file_cache.set(key, value)
-        return self._simple_cache.set(key, value, timeout)
+        self._simple_cache.set(key, value, timeout)
+        return self._file_cache.set(key, value)
 
     def clearall(self):
         self._simple_cache.clear()
@@ -40,7 +40,7 @@ class TLCache(cache.BaseCache):
                     except Exception as e:
                         logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
                                      f, e, args, kwargs, exc_info=1)
-                        rv = self._file_cache.get(cache_key)
+                        rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
                         if not rv:
                             raise e
                 return rv

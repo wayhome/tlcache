@@ -3,6 +3,11 @@
 History
 -------
 
+0.1.4 (2016-3-16)
+-------------------
+* make sure fd is closed when fdopen occus exception
+* set memory before file
+
 0.1.3 (2015-11-24)
 ------------------
 * Don't cache when results is empty

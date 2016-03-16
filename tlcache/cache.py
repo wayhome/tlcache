@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import logging
 import inspect
 import os
 import tempfile
@@ -194,7 +195,7 @@ class BaseCache(object):
 
         return wrapper
 
-            
+
 class FileSystemCache(BaseCache):
 
     """A cache that stores the items on the file system.  This cache depends
@@ -294,9 +295,16 @@ class FileSystemCache(BaseCache):
             try:
                 fd, tmp = tempfile.mkstemp(suffix=self._fs_transaction_suffix,
                                            dir=self._path)
-                with os.fdopen(fd, 'wb') as f:
-                    pickle.dump(timeout, f, 1)
-                    pickle.dump(value, f, pickle.HIGHEST_PROTOCOL)
+                try:
+                    with os.fdopen(fd, 'wb') as f:
+                        pickle.dump(timeout, f, 1)
+                        pickle.dump(value, f, pickle.HIGHEST_PROTOCOL)
+                except Exception as e:
+                    try:
+                        logging.error("fdopen error: %s", e)
+                        os.close(fd)
+                    except:
+                        pass
                 os.rename(tmp, filename)
                 os.chmod(filename, self._mode)
             except (IOError, OSError):
@@ -398,4 +406,3 @@ class SimpleCache(BaseCache):
             return expires == 0 or expires > time.time()
         except KeyError:
             return False
-
