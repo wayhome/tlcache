@@ -1,7 +1,11 @@
 .. :changelog:
 
 History
--------
+
+0.1.7 (2016-4-14)
+-----------------
+* cache refresh manager, should be used with lock
+
 0.1.6 (2016-4-14)
 -----------------
 * add cache refresh context manager

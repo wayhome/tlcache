@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
+import logging
+import threading
 from contextlib import contextmanager
 from functools import wraps
-import logging
 
 from . import cache
 
@@ -17,8 +18,8 @@ class TLCache(cache.BaseCache):
             threshold=threshold, default_timeout=default_timeout)
         self._file_cache = cache.FileSystemCache(cache_dir, threshold=_DEFAULT_FILE_THRESHOLD,
                                                  default_timeout=_DEFAULT_FILE_TIMEOUT)
-
         self._refresh_cache = False
+        self.lock = threading.Lock()
 
     def set(self, key, value, timeout=None):
         self._simple_cache.set(key, value, timeout)
@@ -30,11 +31,12 @@ class TLCache(cache.BaseCache):
 
     @contextmanager
     def with_refresh(self):
-        try:
-            self._refresh_cache = True
-            yield
-        finally:
-            self._refresh_cache = False
+        with self.lock:
+            try:
+                self._refresh_cache = True
+                yield
+            finally:
+                self._refresh_cache = False
 
     def cache(self, namespace=None, timeout=None):
         def wrapper(f):
