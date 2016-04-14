@@ -2,6 +2,10 @@
 
 History
 -------
+0.1.6 (2016-4-14)
+-----------------
+* add cache refresh context manager
+
 0.1.5 (2016-4-14)
 ------------------
 * decrese logging warnings

@@ -17,11 +17,27 @@ Two Level Local Cache
 
 Usage
 --------
+
+* simple use
+
 >>> from tlcache import TLCache
 >>> cache = TLCache(cache_dir="/tmp/xxxxdir")
->>> cache.cache()
-... def add(c):
-...     return c + 1
+>>> lst = []
+>>> @cache.cache()
+... def apppend():
+...     lst.append(1)
+...     return lst
+>>> append() == [1]
+>>> append() == [1]
+
+* cache refresh
+
+>>> with cache.with_refresh():
+...     append() == [1, 1]
+...     append() == [1, 1, 1]
+>>> append() == [1, 1, 1]
+
+
 
 
 Features

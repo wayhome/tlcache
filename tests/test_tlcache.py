@@ -39,6 +39,22 @@ class TestTlcache(unittest.TestCase):
         incr()
         self.assertEqual(incr(), 3)
 
+    def test_cache_refresh(self):
+        lst = []
+
+        @self.cache.cache(timeout=10)
+        def append():
+            lst.append(1)
+            return lst
+        append()
+        self.assertEqual(append(), [1])
+        with self.cache.with_refresh():
+            append()
+            self.assertEqual(lst, [1, 1])
+            self.assertEqual(append(), [1, 1, 1])
+        append()
+        self.assertEqual(lst, [1, 1, 1])
+
     def test_cache_when_raises(self):
 
         class Number(object):
