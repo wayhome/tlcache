@@ -38,11 +38,12 @@ class TLCache(cache.BaseCache):
                         if rv:
                             self.set(cache_key, rv, timeout=timeout)
                     except Exception as e:
-                        logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
-                                     f, e, args, kwargs, exc_info=1)
                         rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
                         if not rv:
                             raise e
+                        else:
+                            logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
+                                         f, e, args, kwargs, exc_info=1)
                 return rv
 
             return call
