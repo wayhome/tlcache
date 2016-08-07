@@ -12,9 +12,13 @@ import unittest
 import time
 
 import gevent
+
 from flexmock import flexmock
 
 from tlcache.tlcache import TLCache
+
+from gevent import monkey
+monkey.patch_all()
 
 
 class TestTlcache(unittest.TestCase):
@@ -48,15 +52,15 @@ class TestTlcache(unittest.TestCase):
         def incr():
             global i
             i += 1
+            gevent.sleep(0)
             return i
-        threads = [gevent.spawn(incr) for _ in range(1000)]
-        gevent.joinall(threads)
+        threads = [gevent.spawn(incr) for _ in range(10)]
+        gevent.joinall(threads, timeout=0.1)
         self.assertEqual(incr(), 1)
         time.sleep(0.1)
-        threads = [gevent.spawn(incr) for _ in range(1000)]
-        gevent.joinall(threads)
+        threads = [gevent.spawn(incr) for _ in range(10)]
+        gevent.joinall(threads, timeout=0.1)
         self.assertEqual(incr(), 2)
-
 
     def test_cache_none(self):
         global i
