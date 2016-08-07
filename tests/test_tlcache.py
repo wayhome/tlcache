@@ -11,6 +11,7 @@ Tests for `tlcache` module.
 import unittest
 import time
 
+import gevent
 from flexmock import flexmock
 
 from tlcache.tlcache import TLCache
@@ -26,7 +27,7 @@ class TestTlcache(unittest.TestCase):
 
     def test_000_cache(self):
         global i
-        i = 1
+        i = 0
 
         @self.cache.cache(timeout=0.1)
         def incr():
@@ -34,10 +35,42 @@ class TestTlcache(unittest.TestCase):
             i += 1
             return i
         incr()
-        self.assertEqual(incr(), 2)
+        self.assertEqual(incr(), 1)
         time.sleep(0.1)
         incr()
-        self.assertEqual(incr(), 3)
+        self.assertEqual(incr(), 2)
+
+    def test_cache_concurrency(self):
+        global i
+        i = 0
+
+        @self.cache.cache(timeout=0.1)
+        def incr():
+            global i
+            i += 1
+            return i
+        threads = [gevent.spawn(incr) for _ in range(1000)]
+        gevent.joinall(threads)
+        self.assertEqual(incr(), 1)
+        time.sleep(0.1)
+        threads = [gevent.spawn(incr) for _ in range(1000)]
+        gevent.joinall(threads)
+        self.assertEqual(incr(), 2)
+
+
+    def test_cache_none(self):
+        global i
+        i = 0
+
+        @self.cache.cache(timeout=0.1)
+        def incr():
+            global i
+            i += 1
+
+        incr()
+        self.assertEqual(i, 1)
+        incr()
+        self.assertEqual(i, 1)
 
     def test_cache_refresh(self):
         lst = []

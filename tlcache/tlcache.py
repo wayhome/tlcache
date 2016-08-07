@@ -11,6 +11,11 @@ _DEFAULT_FILE_THRESHOLD = 100000
 _DEFAULT_FILE_TIMEOUT = 86400
 
 
+class NotInCache(object):
+    # used to cache empty results instead of None
+    pass
+
+
 class TLCache(cache.BaseCache):
 
     def __init__(self, cache_dir, threshold=1000, default_timeout=300):
@@ -45,11 +50,10 @@ class TLCache(cache.BaseCache):
                 cache_key = cache.generate_cache_key(
                     namespace, f, *args, **kwargs)
                 rv = self._simple_cache.get(cache_key)
-                if not rv or self._refresh_cache:
+                if rv is None or self._refresh_cache:
                     try:
-                        rv = f(*args, **kwargs)
-                        if rv:
-                            self.set(cache_key, rv, timeout=timeout)
+                        rv = f(*args, **kwargs) or NotInCache()
+                        self.set(cache_key, rv, timeout=timeout)
                     except Exception as e:
                         rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
                         if not rv:
@@ -57,7 +61,7 @@ class TLCache(cache.BaseCache):
                         else:
                             logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
                                          f, e, args, kwargs, exc_info=1)
-                return rv
+                return None if isinstance(rv, NotInCache) else rv
 
             return call
 
