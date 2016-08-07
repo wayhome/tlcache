@@ -5,6 +5,7 @@ History
 0.2.0 (2016-08-07)
 -------------------
 * Even cache when got empty results
+* When exception, use old data to cache degraded
 
 0.1.7 (2016-4-14)
 -----------------

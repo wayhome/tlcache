@@ -10,6 +10,8 @@ from . import cache
 _DEFAULT_FILE_THRESHOLD = 100000
 _DEFAULT_FILE_TIMEOUT = 86400
 
+logger = logging.getLogger("tlcache")
+
 
 class NotInCache(object):
     # used to cache empty results instead of None
@@ -60,7 +62,8 @@ class TLCache(cache.BaseCache):
                             if not rv:
                                 raise e
                             else:
-                                logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
+                                self.set(cache_key, rv, timeout=min(timeout, 5))  # cache degraded
+                                logger.error("function: %s is failed: %s, args: %s, kwargs: %s",
                                              f, e, args, kwargs, exc_info=1)
                     return None if isinstance(rv, NotInCache) else rv
 

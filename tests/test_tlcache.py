@@ -8,6 +8,7 @@ test_tlcache
 Tests for `tlcache` module.
 """
 
+import logging
 import unittest
 import time
 
@@ -19,6 +20,8 @@ from tlcache.tlcache import TLCache
 
 from gevent import monkey
 monkey.patch_all()
+
+logging.basicConfig(level="INFO")
 
 
 class TestTlcache(unittest.TestCase):
