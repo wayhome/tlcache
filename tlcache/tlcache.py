@@ -60,7 +60,7 @@ class TLCache(cache.BaseCache):
                             self.set(cache_key, rv, timeout=timeout)
                         except Exception as e:
                             rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
-                            if not rv:
+                            if rv is None:
                                 raise e
                             else:
                                 self.set(cache_key, rv, timeout=min(timeout, 5))  # cache degraded
