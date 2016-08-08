@@ -10,6 +10,13 @@ from . import cache
 _DEFAULT_FILE_THRESHOLD = 100000
 _DEFAULT_FILE_TIMEOUT = 86400
 
+logger = logging.getLogger("tlcache")
+
+
+class NotInCache(object):
+    # used to cache empty results instead of None
+    pass
+
 
 class TLCache(cache.BaseCache):
 
@@ -19,7 +26,7 @@ class TLCache(cache.BaseCache):
         self._file_cache = cache.FileSystemCache(cache_dir, threshold=_DEFAULT_FILE_THRESHOLD,
                                                  default_timeout=_DEFAULT_FILE_TIMEOUT)
         self._refresh_cache = False
-        self.lock = threading.Lock()
+        self.lock = threading.RLock()
 
     def set(self, key, value, timeout=None):
         self._simple_cache.set(key, value, timeout)
@@ -44,20 +51,22 @@ class TLCache(cache.BaseCache):
             def call(*args, **kwargs):
                 cache_key = cache.generate_cache_key(
                     namespace, f, *args, **kwargs)
-                rv = self._simple_cache.get(cache_key)
-                if not rv or self._refresh_cache:
-                    try:
-                        rv = f(*args, **kwargs)
-                        if rv:
+                with self.lock:
+                    rv = self._simple_cache.get(cache_key)
+                    if rv is None or self._refresh_cache:
+                        try:
+                            rv = f(*args, **kwargs)
+                            rv = rv if (rv is not None) else NotInCache()
                             self.set(cache_key, rv, timeout=timeout)
-                    except Exception as e:
-                        rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
-                        if not rv:
-                            raise e
-                        else:
-                            logging.warn("function: %s is failed: %s, args: %s, kwargs: %s",
-                                         f, e, args, kwargs, exc_info=1)
-                return rv
+                        except Exception as e:
+                            rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
+                            if rv is None:
+                                raise e
+                            else:
+                                self.set(cache_key, rv, timeout=min(timeout, 5))  # cache degraded
+                                logger.error("function: %s is failed: %s, args: %s, kwargs: %s",
+                                             f, e, args, kwargs, exc_info=1)
+                    return None if isinstance(rv, NotInCache) else rv
 
             return call
 
