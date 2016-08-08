@@ -55,7 +55,8 @@ class TLCache(cache.BaseCache):
                     rv = self._simple_cache.get(cache_key)
                     if rv is None or self._refresh_cache:
                         try:
-                            rv = f(*args, **kwargs) or NotInCache()
+                            rv = f(*args, **kwargs)
+                            rv = rv if (rv is not None) else NotInCache()
                             self.set(cache_key, rv, timeout=timeout)
                         except Exception as e:
                             rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
