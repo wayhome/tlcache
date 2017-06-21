@@ -2,6 +2,10 @@
 
 History
 
+0.2.1 (2017-06-21)
+-------------------
+* Fix missing exception stack
+
 0.2.0 (2016-08-07)
 -------------------
 * Even cache when got empty results

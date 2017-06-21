@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='tlcache',
-    version='0.2.0',
+    version='0.2.1',
     description="Two Level Local Cache",
     long_description=readme + '\n\n' + history,
     author="Young King",

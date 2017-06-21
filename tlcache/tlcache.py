@@ -61,7 +61,7 @@ class TLCache(cache.BaseCache):
                         except Exception as e:
                             rv = self._simple_cache.get(cache_key) or self._file_cache.get(cache_key)
                             if rv is None:
-                                raise e
+                                raise
                             else:
                                 self.set(cache_key, rv, timeout=min(timeout, 5))  # cache degraded
                                 logger.error("function: %s is failed: %s, args: %s, kwargs: %s",
